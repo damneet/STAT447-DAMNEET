@@ -28,7 +28,7 @@ length(Canadian_vaccines$dose_rate)
 plot(Canadian_vaccines$dose_rate,ur_data$UR)
 
 
-
-
+plot(1:length(ur_data$Date),ur_data$UR)
+plot(1:length(Canadian_vaccines$date),Canadian_vaccines$dose_rate)
 
 
