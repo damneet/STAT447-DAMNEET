@@ -32,3 +32,8 @@ plot(1:length(ur_data$Date),ur_data$UR)
 plot(1:length(Canadian_vaccines$date),Canadian_vaccines$dose_rate)
 
 
+x=0:10
+plot(x,log(x))
+plot(x,exp(x))
+
+plot(-exp(x),log(x))
