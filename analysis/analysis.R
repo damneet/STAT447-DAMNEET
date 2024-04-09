@@ -37,3 +37,12 @@ plot(x,log(x))
 plot(x,-log(x))
 
 plot(log(x),exp(-x))
+
+
+y<-rexp(200)
+plot(1:length(y),y,col="red")
+mean(y)
+plot.new(
+
+
+
