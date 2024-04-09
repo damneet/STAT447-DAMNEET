@@ -6,7 +6,7 @@
 ### Results
 - Model 1:
     - Unemployment ~ Beta($\mu$ , $\sigma$)
-    - $\mu$ ~ logistic($\theta_slope$ $V_i$ + $\theta_intercept$)
-    - $\theta_slope$ ~ Normal(0,1)
-    - $\theta_intercept$ ~ Exp(0.1)
+    - $\mu$ ~ logistic($\theta_{slope}$ $V_i$ + $\theta_{intercept}$)
+    - $\theta_{slope}$ ~ Normal(0,1)
+    - $\theta_{intercept}$ ~ Exp(0.1)
     - $\sigma$ ~ Exp(0.1)
