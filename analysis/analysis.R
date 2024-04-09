@@ -58,3 +58,6 @@ hist(y)
 
 hist(ur_data$UR)
 hist(Canadian_vaccines$dose_rate)
+
+
+logit<-glm(ur_data$UR/100 ~ Canadian_vaccines$dose_rate,family = binomial)
