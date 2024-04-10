@@ -1,6 +1,5 @@
 require(rstan)
 library(rstan)
-install.packages("rstan")
 Yes
 u<-ur_data$UR/100
 v<-Canadian_vaccines$dose_rate/100
@@ -14,4 +13,18 @@ fit = stan(
 )
 
 fit
+
+samples = extract(fit)$mu
+n_samples = nrow(samples)
+
+plot(v, u)
+
+for (i in 1:n_samples) {
+  lines(v, samples[i,])
+}
+
+plot(samples[i,])
+
+
+
 
