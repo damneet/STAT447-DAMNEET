@@ -1,3 +1,5 @@
+install.packages("betareg")
+library(betareg)
 vaccine_rates<-data_example2
 vaccine_rates$numtotal_atleast1dose
 vaccine_rates<-data.frame(vaccine_rates)
@@ -59,5 +61,26 @@ hist(y)
 hist(ur_data$UR)
 hist(Canadian_vaccines$dose_rate)
 
+ordinary_model<-lm(ur_data$UR/100 ~ Canadian_vaccines$dose_rate)
+summary(ordinary_model)
+new_data<-data.frame(v)
 
-logit<-glm(ur_data$UR/100 ~ Canadian_vaccines$dose_rate,family = binomial)
+predictions<-predict(ordinary_model,newdata=new_data)
+
+u<-u/10
+u
+
+v<-v[-23]
+
+betamodel <- betareg(u~ v)
+summary(betamodel)
+
+predictions<-predict(betamodel,newdata=new_data)
+predictions
+plot(1:28,u)
+lines(1:28,predictions)
+new<-predict(betamodel,newdata=data.frame(v=1))
+new
+
+u<-u[-23]
+plot(1:(N-1),u/10)

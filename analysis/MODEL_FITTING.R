@@ -2,6 +2,7 @@ suppressPackageStartupMessages(require(rstan))
 suppressPackageStartupMessages(require(ggplot2))
 suppressPackageStartupMessages(require(dplyr))
 u<-ur_data$UR/10
+u
 v<-Canadian_vaccines$dose_rate/100
 N<-29
 u
@@ -9,7 +10,7 @@ u
 fit = stan(
   seed = 123,
   file = "~/Documents/GitHub/STAT447-DAMNEET/MODEL1.stan",  
-  data = list(u=u,v=v,N=N,v_pred=0.4),      
+  data = list(u=u,v=v,N=N,v_pred=1),      
   iter = 1000                   
 )
 
@@ -24,7 +25,9 @@ averages
 plot(v,u/10)
 lines(v,averages,col="red",type="l")
 plot(1:N,u/10)
-lines(1:N,averages,col="red",type="l")
+lines(1:N,averages,col="red",type="b")
+lines(1:N,predictions,col="blue",type="b")
+
 
 slopes<-extract(fit)$slope
 intercepts<-extract(fit)$intercept

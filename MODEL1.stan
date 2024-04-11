@@ -27,7 +27,6 @@ model {
 }
 
 generated quantities {
-  array[N] real mu2 = beta_proportion_rng(mu,sigma);
   real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
 }
 
