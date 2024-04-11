@@ -2,6 +2,7 @@ data {
   int<lower=0> N; 
   vector<lower=0,upper=1>[N] v;
   vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
 }
 
 
@@ -27,5 +28,6 @@ model {
 
 generated quantities {
   array[N] real mu2 = beta_proportion_rng(mu,sigma);
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
 }
 
