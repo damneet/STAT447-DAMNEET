@@ -13,10 +13,7 @@ fit = stan(
 
 fit
 
-samples = extract(fit)$mu
+samples = extract(fit)$mu2
 n_samples = nrow(samples)
 
-
 plot(1:N,samples[i,])
-plot(1:N,u)
-
