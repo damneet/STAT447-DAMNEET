@@ -6,6 +6,8 @@
 - It is shown that a 5 percentage point increase in unemployment rate, a characteristic increase during a recessionary period, decreases the likelihood of a flu shot by 2.3 percentage points. (Source 4)
 - Source 5 finds employs a hierarchical model to build a model around unemplpyment rates. Their analysis shows that a time series model given in Remark 1 for an individual state cannot be fit, as there are too many parameters relative to the data. Thus it is crucial to combine both the cross-sectional and time series data to develop improved estimates of the state unemployment rates.
 - Vaccination rates in Nigeria:  Studies have reported that the Negative Binomial model has the best performance of count models for count health outcomes, and by extension, the Zero-Inflated Negative Binomial model in the presence of overdispersion and excess zeros and high variability – one of which is vaccine uptake among Children in Nigeria. (Source 6)
+- Bayes model to estimate effect of vaccine misinformation on vaccine intent.
+- 
 
 
   ## Sources
@@ -15,4 +17,5 @@
   4. https://ruor.uottawa.ca/server/api/core/bitstreams/04fed970-e00d-41c6-893f-fd45ce2a7eec/content
   5. https://www.jstor.org/stable/2669921?saml_data=eyJzYW1sVG9rZW4iOiI2MDI4OWY3Ni00NDJkLTQwZjgtYTk2MC04OWM0NDk3NGNjMDciLCJpbnN0aXR1dGlvbklkcyI6WyIxMjJiMTFjOS00YWE5LTQzY2UtYWQzZS0xMmUyYTE4YmU3ZWUiXX0
   6. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10283190/
-  7. 
+  7. https://www.nature.com/articles/s41562-021-01056-1
+  8. 
