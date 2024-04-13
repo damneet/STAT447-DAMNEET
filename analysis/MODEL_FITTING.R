@@ -1,6 +1,8 @@
 suppressPackageStartupMessages(require(rstan))
 suppressPackageStartupMessages(require(ggplot2))
 suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(bayesplot))
+
 u<-ur_data$UR/10
 u
 v<-Canadian_vaccines$dose_rate/100
@@ -23,7 +25,7 @@ averages <- colMeans(mu2_values)/10
 averages
 
 plot(v,u/10)
-lines(v,averages,col="red",type="l")
+lines(v,averages,col="red",type="b")
 plot(1:N,u/10)
 lines(1:N,averages,col="red",type="b")
 lines(1:N,predictions,col="blue",type="b")
@@ -41,4 +43,57 @@ inv_logit <- function(x) {
 }
 
 hist(inv_logit(intercepts)/10)
+
+v_pred=v
+v_pred
+
+df<-data.frame(u=u,v=v)
+df
+
+N_obs = nrow(df)
+N_train = N_obs-1
+
+ci_limits <- matrix(NA, nrow(df), 2)
+
+for (i in 1:nrow(df)) {
+  N_train <- nrow(df) - 1
+  train_test_dta <- list(
+    N = N_train,
+    v = df$v[-i], 
+    u = df$u[-i], 
+    v_pred = df$v[i]
+  )
+  
+  fit  = stan(
+    seed = 123,
+    file = "~/Documents/GitHub/STAT447-DAMNEET/MODEL1.stan",  
+    data = train_test_dta,      
+    iter = 1000                   
+  )
+  
+  samples <- (rstan::extract(fit)$u_pred)
+  
+  obs_credible_interval <- quantile(samples, c(0.025, 0.975))
+  
+  ci_limits[i, ] <- obs_credible_interval
+}
+
+merged_df = df %>% 
+  bind_cols(data.frame(CI_L = ci_limits[,1], CI_R = ci_limits[,2])) %>% 
+  mutate(Inside_CI = (u >= CI_L & u <= CI_R)) 
+merged_df %>% 
+  ggplot(aes(x = 1:N_obs, y = u, ymin = CI_L, ymax = CI_R, color=Inside_CI)) +
+  geom_point() + 
+  geom_errorbar() +
+  theme_minimal() +
+  labs(x = "Point", y = "Unemployment Rate")
+
+
+mcmc_trace(fit, pars = c("slope")) + theme_minimal()
+mcmc_trace(fit, pars = c("intercept")) + theme_minimal()
+
+
+mcmc_rank_hist(fit, pars = c("slope")) + theme_minimal()
+mcmc_rank_hist(fit, pars = c("intercept")) + theme_minimal()
+
 
