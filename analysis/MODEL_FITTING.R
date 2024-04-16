@@ -30,10 +30,26 @@ plot(1:N,u/10)
 lines(1:N,averages,col="red",type="b")
 lines(1:N,predictions,col="blue",type="b")
 
+## Error terms with priors:
 
-slopes<-extract(fit)$slope
+errors <- data.frame(matrix(ncol = 29, nrow = 2000))
+
+mu2_values<-mu2_values/10
+
+for (i in 1:29){
+  error<-(mu2_values[,i])-u[i]/10
+  errors[, i] <- error
+}
+  
+errors1<-averages-u/10
+
+plot(errors1,type="b")
+mean(errors1^2)
+
+slopes<-extract(fit)$slope/10
 intercepts<-extract(fit)$intercept
 hist(slopes)
+mean(slopes)
 hist(intercepts)
 mean(intercepts)
 
@@ -43,6 +59,7 @@ inv_logit <- function(x) {
 }
 
 hist(inv_logit(intercepts)/10)
+mean(inv_logit(intercepts)/10)
 
 v_pred=v
 v_pred

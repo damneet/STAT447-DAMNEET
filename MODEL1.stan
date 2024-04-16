@@ -20,7 +20,7 @@ transformed parameters {
 
 model {
   slope ~ normal(0,10);
-  intercept ~ exponential(0.01);
+  intercept ~ exponential(0.1);
   sigma ~ exponential(0.01);
   u~beta_proportion(mu, sigma);
   
