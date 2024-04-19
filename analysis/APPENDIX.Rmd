@@ -42,8 +42,17 @@ Canadian_vaccines<-Canadian_vaccines[-c(1,3:6,8:10,12:14,16:18,20:23,
 ur<-ur_data$UR/100
 v<-Canadian_vaccines$dose_rate/100
 N<-length(v)
+df<-data.frame(Unemployment=ur,Vaccination=v)
 ```
 
+
+## Table of Data
+
+```{r}
+
+rmarkdown::paged_table(df)
+
+```
 
 ```{r}
 ## Plot for first look at relationship between two variable
@@ -81,7 +90,7 @@ plot(v,ur,
 lines(dosage$v,exp(predictions),type="p",col="red")
 legend("bottomleft", legend = c("Actual", "Fitted"), col = c("black", "red"), pch = c(1, 1))
 
-errors_regular<-exp(predictions)-Unemp
+errors_regular<-exp(predictions)-ur
 sqrt(mean(errors_regular^2))
 ```
 
