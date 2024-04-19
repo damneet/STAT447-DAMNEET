@@ -50,12 +50,15 @@ Unemp<-ur_data$UR/100
 ordinary_model<-lm(log(Unemp)~Vaccine)
 summary(ordinary_model)
 
-predictions<-predict(ordinary_model,newdata=dosage)
-dosage<-Canadian_vaccines$dose_rate
+dosage<-Canadian_vaccines$dose_rate/100
 dosage<-data.frame(dosage)
 
-plot(dosage$dosage,exp(predictions))
+predictions<-predict(ordinary_model,newdata=dosage)
 
+
+plot(dosage$dosage,exp(predictions))
+errors_regular<-exp(predictions)-Unemp
+mean(errors_regular^2)
 
 plot(1:length(ur_data$Date),ur_data$UR)
 plot(1:length(Canadian_vaccines$date),Canadian_vaccines$dose_rate)

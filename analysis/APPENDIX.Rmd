@@ -1,0 +1,334 @@
+---
+title: "Appendix"
+author: "Damneet Thiara (11170388)"
+date: "2024-04-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages(require(rstan))
+suppressPackageStartupMessages(require(ggplot2))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(bayesplot))
+```
+
+## Cleaning Data
+
+```{r}
+vaccines<-read.csv("~/Desktop/vaccination-coverage-map_data.csv")
+ur_data<-read.csv("~/Desktop/STAT 447C/PROJECT DATA/UR_DATA.csv")
+Canadian_vaccines<-subset(vaccines, prename == "Canada")
+Canadian_vaccines<-data.frame(
+  date=Canadian_vaccines$week_end,
+  dose_rate=Canadian_vaccines$proptotal_atleast1dose)
+
+ur_data<-ur_data[-c(40,41),]
+ur_data<-ur_data[-c(30:39),]
+
+Canadian_vaccines<-Canadian_vaccines[-c(1,3:6,8:10,12:14,16:18,20:23,
+                                        25:27,29:32,34:36,38:40,42:45,
+                                        47:49,51:53,55:58,60:62,64:66,68:69,
+                                        71,80,85:88),]
+
+ur<-ur_data$UR/100
+v<-Canadian_vaccines$dose_rate/100
+N<-length(v)
+
+hist(Canadian_vaccines$dose_rate,main="Histogram of Canadian Vaccine Rates",
+     xlab="Vaccine Rates")
+```
+
+
+```{r}
+plot(v,ur,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1))
+
+```
+
+## Fitting Frequentist Model
+```{r}
+ordinary_model<-lm(log(ur)~v)
+summary(ordinary_model)
+```
+
+Summary statistics for frequentist model.
+
+```{r}
+dosage<-data.frame(v)
+
+predictions<-predict(ordinary_model,newdata=dosage)
+
+plot(v,ur,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1))
+lines(dosage$v,exp(predictions),type="p",col="red")
+legend("bottomleft", legend = c("Actual", "Fitted"), col = c("black", "red"), pch = c(1, 1))
+
+errors_regular<-exp(predictions)-Unemp
+sqrt(mean(errors_regular^2))
+```
+
+Mean squared error of residuals for this model is 0.007736867.
+
+## Bayesian Model
+
+## Model 1
+
+```{stan, output.var="MODEL1"}
+data {
+  int<lower=0> N; 
+  vector<lower=0,upper=1>[N] v;
+  vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
+}
+
+
+parameters {
+  real slope;
+  real<lower=0> intercept;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu=inv_logit(intercept + slope*v);
+}
+
+
+
+model {
+  slope ~ normal(0,10);
+  intercept ~ exponential(0.1);
+  sigma ~ exponential(0.01);
+  u~beta_proportion(mu, sigma);
+  
+}
+
+generated quantities {
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
+}
+
+```
+
+### Fitting Model
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+fit1 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+```
+
+```{r}
+print(fit1)
+```
+
+```{r}
+mu2_values<-extract(fit1)$mu
+averages <- colMeans(mu2_values)
+
+plot(v,averages,col="red",type="b",
+      main="Bayesian Model 1",
+      ylab="Unemployment Rate",
+      xlab="Vaccine Rate")
+
+```
+
+## Bayesian Model 2 (Scaling Unemployment by 10)
+
+```{r}
+ur=ur_data$UR/10
+```
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+
+fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+```
+
+```{r}
+print(fit2)
+```
+
+```{r}
+mu2_values<-extract(fit2)$mu/10
+averages <- colMeans(mu2_values)
+
+plot(v,averages,type="b",col="red",
+     main="Bayesian Model 2 - Actual vs Predicted",
+     ylim=c(0.045,0.095),
+     xlab="Vaccine Rate",
+     ylab="Unemployment Rate")
+lines(v,ur/10,type="b")
+legend("bottomleft", legend = c("Actual", "Predicted"), col = c("black", "red"), pch = c(1, 1))
+
+slopes<-extract(fit2)$slope/10
+intercepts<-extract(fit2)$intercept
+
+hist(slopes,main="Histogram of Slopes")
+
+inv_logit <- function(x) {
+  exp_x <- exp(-x)
+  return(1 / (1 + exp_x))
+}
+
+hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
+     xlab="Intercept")
+```
+
+### Errors
+```{r}
+errors <- data.frame(matrix(ncol = 29, nrow = 2000))
+
+mu2_values<-mu2_values
+
+for (i in 1:29){
+  error<-(mu2_values[,i])-ur[i]/10
+  errors[, i] <- error
+}
+  
+errors1<-averages-ur/10
+
+sqrt(mean(errors1^2))
+
+```
+
+Mean squared error for this model is 0.00666302.
+
+### Changing Priors
+```{stan, output.var="MODEL2"}
+data {
+  int<lower=0> N; 
+  vector<lower=0,upper=1>[N] v;
+  vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
+}
+
+
+parameters {
+  real slope;
+  real<lower=0> intercept;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu=inv_logit(intercept + slope*v);
+}
+
+
+
+model {
+  slope ~ normal(0,1);
+  intercept ~ exponential(0.01);
+  sigma ~ exponential(0.1);
+  u~beta_proportion(mu, sigma);
+  
+}
+
+generated quantities {
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
+}
+```
+
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+
+fit3 = sampling(
+  seed=123,
+  MODEL2,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+```
+
+```{r}
+print(fit3)
+```
+
+### Errors
+
+```{r}
+mu2_values<-extract(fit3)$mu/10
+averages <- colMeans(mu2_values)
+
+errors <- data.frame(matrix(ncol = 29, nrow = 2000))
+
+mu2_values<-mu2_values
+
+for (i in 1:29){
+  error<-(mu2_values[,i])-ur[i]/10
+  errors[, i] <- error
+}
+  
+errors1<-averages-ur/10
+
+sqrt(mean(errors1^2))
+
+```
+
+This is higher than the mean squared error we had before, which was 0.006672511.
+
+### Credible Intervals
+
+```{r}
+df<-data.frame(u=ur,v=v)
+
+
+N_obs = nrow(df)
+N_train = N_obs-1
+
+ci_limits <- matrix(NA, nrow(df), 2)
+
+for (i in 1:nrow(df)) {
+  N_train <- nrow(df) - 1
+  train_test_dta <- list(
+    N = N_train,
+    v = df$v[-i], 
+    u = df$u[-i], 
+    v_pred = df$v[i]
+  )
+  
+  fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+  
+  samples <- (rstan::extract(fit)$u_pred)
+  
+  obs_credible_interval <- quantile(samples, c(0.025, 0.975))
+  
+  ci_limits[i, ] <- obs_credible_interval
+}
+
+merged_df = df %>% 
+  bind_cols(data.frame(CI_L = ci_limits[,1], CI_R = ci_limits[,2])) %>% 
+  mutate(Inside_CI = (u >= CI_L & u <= CI_R)) 
+merged_df %>% 
+  ggplot(aes(x = 1:N_obs, y = u, ymin = CI_L, ymax = CI_R, color=Inside_CI)) +
+  geom_point() + 
+  geom_errorbar() +
+  theme_minimal() +
+  labs(x = "Point", y = "Unemployment Rate")
+
+
+
+```
