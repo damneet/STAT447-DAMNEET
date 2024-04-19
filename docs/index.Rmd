@@ -1,10 +1,34 @@
 ---
-title: "Modelling Unemployment and Vaccination Rates"
-author: "Damneet Thiara (11170388) - STAT 447C"
-date: "2024-04-19"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
+# Modelling Unemployment and Vaccination Rates
+Damneet Thiara, 11170388 - STAT 447C
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages(require(rstan))
+suppressPackageStartupMessages(require(ggplot2))
+suppressPackageStartupMessages(require(dplyr))
+suppressPackageStartupMessages(require(bayesplot))
 ```
+
+## Introduction
+By April of 2020, the overall unemployment rate in Canada had hit 14.1%, an 8.4 percentage point increase from February of 2020 (Source 1 - StatsCan). This unprecedented increase was just one month after COVID-19 was declared a pandemic by the World Health Organization (WHO). Since then, deaths have been unprecedented, alongside a dramatic downturn in economic activity. By December 9th, 2020, Health Canada had authorized the first COVID-19 vaccine: the Pfizer-BioNTech vaccine (Source 3). Health Canada also reported that the  Pfizer-BioNTech Comirnaty COVID vaccine had shown to have been “95% effective in protecting trial participants from COVID-19 for those 16 years and older” (Source 4). 
+
+With consumer demand and economic activity spiralling downwards amidst a succession of COVID-19 lockdowns and increasing case/death counts, it begs the question on how COVID-19 vaccines have affected these economic characteristics. Specifically, this paper aims to analyze the relationship between vaccination rates and unemployment rates in Canada from 2020 to 2023. We test the difference between a logarithmic Frequentist model versus a Bayesian model to predict Canadian unemployment rates based on vaccination rates, using time series data. 
+
+## Literature Review
+Previous studies on employing a Bayesian model to unemployment rates have been conducted by Source 5. By building a hierarchical Bayesian model, Source 5 uses cross-sectional and time series data to estimate US state unemployment rates. Additionally, Source 7 uses a Bayesian analysis to estimate the effects of COVID-19 on key economic indicators, and finds that unemployment increased, interest rates decreased, and prices fell after the first lockdown measures. These effects were then dampened or counteracted by stimulus packages. The increase in unemployment rates here ties in directly with the purpose of this project.
+
+Source 8 conducts a Bayesian analysis on how vaccine misinformation affects vaccination rates, reporting that misinformation can decline intent to vaccinate by up to 6.4 percentage points. 
+
+Finally, researchers have explored the relationship between vaccination rates and unemployment rates in many ways already. Source 9 uses an OLS model to find the relationship between vaccination rates and unemployment rates in the US. When analyzing domestic unemployment rates, they find a negative relationship between the two; an increase in vaccination rates is seen alongside a decrease in unemployment rates. However, when analyzing through a state-by-state view, they find that states with higher vaccination rates are more likely to have higher unemployment rates. Although this may seem counter-intuitive, the authors explain this by showing how states with higher vaccination rates experience a higher change in unemployment rates, indeed highlighting the benefits that higher vaccination rates have when it comes to unemplpyment. Indeed, source 3 also finds the same correlation between states with high unemployment rates and high vaccination rates. Similarly, Source 2 finds that there is also a negative relationship between veccination and unemployment rates, specifically using instrumental variable analysis to isolate the effects of vaccines by using pharamacy desnity as a proxy.
+
+The causal relationship can also be reversed. It is shown that a 5 percentage point increase in unemployment rate, a characteristic increase during a recessionary period, decreases the likelihood of a flu shot by 2.3 percentage points (Source 4). 
+
+Notably, there is little to no literature on comparing a Frequentist and Bayesian methods to estimate the relationship between vaccination rates and unemployment rates. 
+
+
+
