@@ -16,12 +16,18 @@ suppressPackageStartupMessages(require(bayesplot))
 ## Cleaning Data
 
 ```{r}
+## Reading CSV files
 vaccines<-read.csv("~/Desktop/vaccination-coverage-map_data.csv")
 ur_data<-read.csv("~/Desktop/STAT 447C/PROJECT DATA/UR_DATA.csv")
+
+## Isolating proportion at least 1 dose
+
 Canadian_vaccines<-subset(vaccines, prename == "Canada")
 Canadian_vaccines<-data.frame(
   date=Canadian_vaccines$week_end,
   dose_rate=Canadian_vaccines$proptotal_atleast1dose)
+
+## Removing extra data
 
 ur_data<-ur_data[-c(40,41),]
 ur_data<-ur_data[-c(30:39),]
@@ -31,16 +37,17 @@ Canadian_vaccines<-Canadian_vaccines[-c(1,3:6,8:10,12:14,16:18,20:23,
                                         47:49,51:53,55:58,60:62,64:66,68:69,
                                         71,80,85:88),]
 
+## Normalizing data
+
 ur<-ur_data$UR/100
 v<-Canadian_vaccines$dose_rate/100
 N<-length(v)
-
-hist(Canadian_vaccines$dose_rate,main="Histogram of Canadian Vaccine Rates",
-     xlab="Vaccine Rates")
 ```
 
 
 ```{r}
+## Plot for first look at relationship between two variable
+
 plot(v,ur,
      main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
      ylab="Unemployment Rate",
@@ -51,6 +58,8 @@ plot(v,ur,
 
 ## Fitting Frequentist Model
 ```{r}
+## Logarithmimc model
+
 ordinary_model<-lm(log(ur)~v)
 summary(ordinary_model)
 ```
@@ -58,6 +67,8 @@ summary(ordinary_model)
 Summary statistics for frequentist model.
 
 ```{r}
+## Measuring accuracy
+
 dosage<-data.frame(v)
 
 predictions<-predict(ordinary_model,newdata=dosage)
@@ -74,11 +85,18 @@ errors_regular<-exp(predictions)-Unemp
 sqrt(mean(errors_regular^2))
 ```
 
-Mean squared error of residuals for this model is 0.007736867.
+Square root of the mean squared error of residuals for this model is 0.007736867.
 
 ## Bayesian Model
 
-## Model 1
+### Model 1
+
+I use the following priors:
+$U$~$Beta(\mu,\sigma)$
+$\mu=inv.logit(\beta_1V+\beta_0)$
+$\beta_1$~$Normal(0,10)$
+$\beta_0$~$Exp(0.1)$
+$\sigma$~$Exp(0.01)$
 
 ```{stan, output.var="MODEL1"}
 data {
@@ -132,8 +150,10 @@ print(fit1)
 ```
 
 ```{r}
-mu2_values<-extract(fit1)$mu
-averages <- colMeans(mu2_values)
+## Plot model
+
+mu_values<-extract(fit1)$mu
+averages <- colMeans(mu_values)
 
 plot(v,averages,col="red",type="b",
       main="Bayesian Model 1",
@@ -142,7 +162,7 @@ plot(v,averages,col="red",type="b",
 
 ```
 
-## Bayesian Model 2 (Scaling Unemployment by 10)
+### Scaling Unemployment by 10
 
 ```{r}
 ur=ur_data$UR/10
@@ -165,8 +185,10 @@ print(fit2)
 ```
 
 ```{r}
-mu2_values<-extract(fit2)$mu/10
-averages <- colMeans(mu2_values)
+
+## Plotting model
+mu_values<-extract(fit2)$mu/10
+averages <- colMeans(mu_values)
 
 plot(v,averages,type="b",col="red",
      main="Bayesian Model 2 - Actual vs Predicted",
@@ -175,6 +197,8 @@ plot(v,averages,type="b",col="red",
      ylab="Unemployment Rate")
 lines(v,ur/10,type="b")
 legend("bottomleft", legend = c("Actual", "Predicted"), col = c("black", "red"), pch = c(1, 1))
+
+## Plotting slope and intercept histograms
 
 slopes<-extract(fit2)$slope/10
 intercepts<-extract(fit2)$intercept
@@ -191,25 +215,28 @@ hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
 ```
 
 ### Errors
+
 ```{r}
-errors <- data.frame(matrix(ncol = 29, nrow = 2000))
-
-mu2_values<-mu2_values
-
-for (i in 1:29){
-  error<-(mu2_values[,i])-ur[i]/10
-  errors[, i] <- error
-}
+errors_bayes1 <- data.frame(matrix(ncol = 29, nrow = 2000))
   
-errors1<-averages-ur/10
+errors_bayes1<-averages-ur/10
 
-sqrt(mean(errors1^2))
+sqrt(mean(errors_bayes1^2))
 
 ```
 
-Mean squared error for this model is 0.00666302.
+Square root of the mean squared error for this model is 0.006672511.
 
-### Changing Priors
+### Model 2: Changing Priors
+
+I use the following priors now:
+
+$U$~$Beta(\mu,\sigma)$
+$\mu=inv.logit(\beta_1V+\beta_0)$
+$\beta_1$~$Normal(0,1)$
+$\beta_0$~$Exp(0.01)$
+$\sigma$~$Exp(0.1)$
+
 ```{stan, output.var="MODEL2"}
 data {
   int<lower=0> N; 
@@ -264,25 +291,16 @@ print(fit3)
 ### Errors
 
 ```{r}
-mu2_values<-extract(fit3)$mu/10
-averages <- colMeans(mu2_values)
+mu_values<-extract(fit3)$mu/10
+averages <- colMeans(mu_values)
 
-errors <- data.frame(matrix(ncol = 29, nrow = 2000))
+errors_bayes2<-averages-ur/10
 
-mu2_values<-mu2_values
-
-for (i in 1:29){
-  error<-(mu2_values[,i])-ur[i]/10
-  errors[, i] <- error
-}
-  
-errors1<-averages-ur/10
-
-sqrt(mean(errors1^2))
+sqrt(mean(errors_bayes2^2))
 
 ```
 
-This is higher than the mean squared error we had before, which was 0.006672511.
+This is higher than the square root mean squared error we had before, which was 0.006672511.
 
 ### Credible Intervals
 
@@ -307,12 +325,12 @@ for (i in 1:nrow(df)) {
   fit2 = sampling(
   seed=123,
   MODEL1,         
-  data = list(u=ur,v=v,N=N,v_pred=1),      
+  data = train_test_dta,      
   chains = 4,
   iter = 1000
 )
   
-  samples <- (rstan::extract(fit)$u_pred)
+  samples <- (rstan::extract(fit2)$u_pred)
   
   obs_credible_interval <- quantile(samples, c(0.025, 0.975))
   
@@ -332,3 +350,5 @@ merged_df %>%
 
 
 ```
+
+95% credible intervals and predictions based on Model 1.
