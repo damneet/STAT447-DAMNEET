@@ -65,7 +65,10 @@ plot(v,ur,
 
 ```
 
+Plot 1
+
 ## Fitting Frequentist Model
+
 ```{r}
 ## Logarithmimc model
 
@@ -93,7 +96,7 @@ legend("bottomleft", legend = c("Actual", "Fitted"), col = c("black", "red"), pc
 errors_regular<-exp(predictions)-ur
 sqrt(mean(errors_regular^2))
 ```
-
+Plot 2.
 Square root of the mean squared error of residuals for this model is 0.007736867.
 
 ## Bayesian Model
@@ -171,6 +174,8 @@ plot(v,averages,col="red",type="b",
 
 ```
 
+Plot 3.
+
 ### Scaling Unemployment by 10
 
 ```{r}
@@ -223,6 +228,8 @@ hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
      xlab="Intercept")
 ```
 
+Plot 4, 5, and 6.
+
 ### Errors
 
 ```{r}
@@ -240,11 +247,11 @@ Square root of the mean squared error for this model is 0.006672511.
 
 I use the following priors now:
 
-$U$~$Beta(\mu,\sigma)$
-$\mu=inv.logit(\beta_1V+\beta_0)$
-$\beta_1$~$Normal(0,1)$
-$\beta_0$~$Exp(0.01)$
-$\sigma$~$Exp(0.1)$
+$$U\sim Beta(\mu,\sigma)$$
+$$\mu=inv.logit(\beta_1V+\beta_0)$$
+$$\beta_1\sim Normal(0,1)$$
+$$\beta_0\sim Exp(0.01)$$
+$$\sigma\sim Exp(0.1)$$
 
 ```{stan, output.var="MODEL2"}
 data {
@@ -359,4 +366,4 @@ merged_df %>%
   labs(x = "Point", y = "Unemployment Rate")
 ```
 
-95% credible intervals and predictions based on Model 1.
+Plot 7. 95% credible intervals and predictions based on Model 1.
