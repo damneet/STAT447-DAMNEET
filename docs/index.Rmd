@@ -12,12 +12,42 @@ suppressPackageStartupMessages(require(rstan))
 suppressPackageStartupMessages(require(ggplot2))
 suppressPackageStartupMessages(require(dplyr))
 suppressPackageStartupMessages(require(bayesplot))
+library(knitr)
 ```
 
+```{r,echo=FALSE}
+## Reading CSV files
+vaccines<-read.csv("~/Desktop/vaccination-coverage-map_data.csv")
+ur_data<-read.csv("~/Desktop/STAT 447C/PROJECT DATA/UR_DATA.csv")
+
+## Isolating proportion at least 1 dose
+
+Canadian_vaccines<-subset(vaccines, prename == "Canada")
+Canadian_vaccines<-data.frame(
+  date=Canadian_vaccines$week_end,
+  dose_rate=Canadian_vaccines$proptotal_atleast1dose)
+
+## Removing extra data
+
+ur_data<-ur_data[-c(40,41),]
+ur_data<-ur_data[-c(30:39),]
+
+Canadian_vaccines<-Canadian_vaccines[-c(1,3:6,8:10,12:14,16:18,20:23,
+                                        25:27,29:32,34:36,38:40,42:45,
+                                        47:49,51:53,55:58,60:62,64:66,68:69,
+                                        71,80,85:88),]
+
+## Normalizing data
+
+ur<-ur_data$UR/100
+v<-Canadian_vaccines$dose_rate/100
+N<-length(v)
+df<-data.frame(Unemployment=ur,Vaccination=v)
+```
 ## Introduction
 By April of 2020, the overall unemployment rate in Canada had hit 14.1%, an 8.4 percentage point increase from February of 2020 (Source 1 - StatsCan). This unprecedented increase was just one month after COVID-19 was declared a pandemic by the World Health Organization (WHO). Since then, deaths have been unprecedented, alongside a dramatic downturn in economic activity. By December 9th, 2020, Health Canada had authorized the first COVID-19 vaccine: the Pfizer-BioNTech vaccine (Source 3). Health Canada also reported that the  Pfizer-BioNTech Comirnaty COVID vaccine had shown to have been “95% effective in protecting trial participants from COVID-19 for those 16 years and older” (Source 4). 
 
-With consumer demand and economic activity spiralling downwards amidst a succession of COVID-19 lockdowns and increasing case/death counts, it begs the question on how COVID-19 vaccines have affected these economic characteristics. Specifically, this paper aims to analyze the relationship between vaccination rates and unemployment rates in Canada from 2020 to 2023. We test the difference between a logarithmic Frequentist model versus a Bayesian model to predict Canadian unemployment rates based on vaccination rates, using time series data. 
+With consumer demand and economic activity spiralling downwards amidst a succession of COVID-19 lockdowns and increasing case/death counts, it begs the question on how COVID-19 vaccines have affected these economic characteristics. Specifically, this paper aims to analyze the relationship between vaccination rates and unemployment rates in Canada from 2020 to 2023. We test the difference between a logarithmic Frequentist model versus a Bayesian model to predict Canadian unemployment rates based on vaccination rates, using time series data.
 
 ## Literature Review
 Previous studies on employing a Bayesian model to unemployment rates have been conducted by Source 5. By building a hierarchical Bayesian model, Source 5 uses cross-sectional and time series data to estimate US state unemployment rates. Additionally, Source 7 uses a Bayesian analysis to estimate the effects of COVID-19 on key economic indicators, and finds that unemployment increased, interest rates decreased, and prices fell after the first lockdown measures. These effects were then dampened or counteracted by stimulus packages. The increase in unemployment rates here ties in directly with the purpose of this project.
@@ -30,5 +60,60 @@ The causal relationship can also be reversed. It is shown that a 5 percentage po
 
 Notably, there is little to no literature on comparing a Frequentist and Bayesian methods to estimate the relationship between vaccination rates and unemployment rates. 
 
+## Analysis
+### Data
+Based on the literature review, although higher vaccination rates are associated with greater drops in unemployment, this does not necessarily mean that states or provinces with higher vaccination rates will have lower unemployment rates. Since the purpose of this project is to test the differences between a Frequentist and Bayesian model, for simplicity, national time series data for Canadian unemployment rates and vaccination rates is used, rather than dividing it between multiple provinces. 
 
+The data for vaccination rates was retrieved from the Government of Canada Health Information Base (Source 6). Previous literature uses one dosage of a COVID-19 vaccine as the benchmark for vaccination rates, so the same standard is used here. Canadian unemployment rates were retrieved from Statistics Canada databases (Source 7). Unemployment rates are reported for an entire month, so the corresponding vaccination rate for each month is the last available vaccination rate available for the end of each month. Some months in 2023 are omitted due to limited vaccination rate data during this time. The final data looks like:
 
+```{r,echo=FALSE,out.width="50%"}
+plot(v,ur,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1))
+```
+
+As vaccination rates go up, the unemployment rate that same month goes down.
+
+### Frequentist Model
+To begin, we start by building a logarithmic Ordinary Least Squares model:
+$$log(U)=\beta_1V+\beta_0$$
+The fitted model is as follows:
+```{r,echo=FALSE}
+ordinary_model<-lm(log(ur)~v)
+summary(ordinary_model)
+```
+### Bayesian Model
+Considering the restrictions on unemployment and vaccination rates, being between 0 and 1, a Beta proportion distribution is appropriate. The Beta proportion regression model can be defined as:
+$$ U\sim Beta Proportion(\mu,\sigma)$$
+$$\mu\in(0,1)$$
+$$\sigma\in\mathbb{R}^+$$
+$$U\in(0,1)$$
+We define $\mu$ using an inverse logit function, which takes all real values as inputs and values between 0 and 1 as the output.
+$$\mu=inv.logit(\beta_1V+\beta_0)$$
+The first set of priors for the $\beta_1$ slope, $\beta_0$ intercept, and $\sigma$ parameters are as follows:
+$$\beta_1\sim Normal(0,10)$$
+$$\beta_0\sim Exp(0.1)$$
+$$\sigma\sim Exp(0.01)$$
+
+The slope parameter is normally distributed to allow for the possibility between positive and negative values. The intercept must be positive since we assume unemployment cannot be below 0, and $\sigma$ must also be positive, hence the exponential distribution.
+
+The preliminary model produces the following results:
+```{r,echo=FALSE}
+slope_data<-c(2.69,0.01,0.32,-3.29,-2.90,-2.69,-2.48,-2.06,1046,1.00)
+intercept_data<-c(0.07,0.00,0.07,0.00,0.02,0.04,0.10,0.24,1118,1.00)
+sigma_data<-c(6.15,0.05,1.75,3.25,4.93,5.96,7.18,10.13,1137,1.00)
+
+colnames<-c("mean","se_mean","sd","2.5%","25%","50%",
+            "75%","97.5%","n_eff","Rhat")
+
+fit1_table<-data.frame("slope"=slope_data,
+                       "intercept"=intercept_data,
+                       "sigma"=sigma_data)
+
+fit1_table<-data.frame(t(fit1_table))
+colnames(fit1_table)<-colnames
+kable(fit1_table)
+
+```
