@@ -1,7 +1,6 @@
 ---
-title: "STAT 447C Project Proposal"
-author: "Damneet Thiara"
-date: "2024-03-13"
+title: "Modelling Unemployment Rates and Vaccination Rates"
+author: "Damneet Thiara (11170388) - STAT 447C"
 output: html_document
 ---
 
@@ -9,61 +8,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Theme
-
-This project will analyze the difference between using Bayesian regression vs Frequentist regression (Ordinary Least Squares Regression) on a given data set. For this project, I will use Bayesian and OLS to estimate the slope parameter on the relationship between unemployment rates and COVID-19 vaccination rates in Canada. The latent variable is the slope parameter. The independent variable is the vaccination rate, and the dependent variable is the unemployment rate. 
-
-## Data
-
-```{r,echo=FALSE}
-
-data_example<-read.csv("~/Desktop/STAT-447C-U-RATES-2020.csv")
-rmarkdown::paged_table(data_example)
-
-```
-
-The above is an example of unemployment rates from February - March of 2020. Through the same source, data for every month until February of 2024 is available.
-
-```{r,echo=FALSE}
-
-data_example2<-read.csv("~/Desktop/vaccination-coverage-map_data.csv")
-rmarkdown::paged_table(data_example2)
-
-```
-
-The following is the weekly national vaccination rate data.
-
-## Approaches
-
-For this project, the aim is to estimate the slope parameter using Bayesian regression and OLS regression. The following approach will be employed for each method.
-
-### Bayesian
-
-A hierarchical model will be created in order to compute an estimate for the slope parameter. Logistic regression and selecting appropriate priors and parameters will be used. The data set can be split into training and testing in order to see if there is an appropriate fit from the model. The goodness-of-fit will be studied.
-
-Possible observations include:
-- Will using different priors impact the estimate?
-- Measuring the sensitivity of the priors
-- The magnitude of the slope parameter
-- How well the model fits on the testing data
-- Measuring errors in the model
-
-### Frequentist
-
-Ordinary Least Squares regression will be used to estimate the slope parameter. Other variables, such as GDP, wages, COVID-19 death rates, COVID-19 case rates, etc. will be extracted in order to remove confounding. The data set will again be split into a training and testing set in order to measure the goodness-of-fit of the model. 
-
-Possible observations include:
-- $R^2$ values
-- Standard error measurement
-- Analyzing variance of residuals and multicollinearity
-- P-values for the parameter of interest
-- Comparing the goodness-of-fit to the Bayesian approach
-
-### References
-
-Public Health Agency of Canada. (2023, September 15). COVID-19 vaccination coverage in Canada. https://health-infobase.canada.ca/covid-19/vaccination-coverage/
-
-Statistics Canada. (2024, March 8). Labour force characteristics by province, monthly, seasonally adjusted. https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703&pickMembers%5B0%5D=3.1&pickMembers%5B1%5D=4.1&cubeTimeFrame.startMonth=03&cubeTimeFrame.startYear=2020&referencePeriods=20200301%2C20200301
 
 
 

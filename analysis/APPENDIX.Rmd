@@ -101,11 +101,11 @@ Square root of the mean squared error of residuals for this model is 0.007736867
 ### Model 1
 
 I use the following priors:
-$U$~$Beta(\mu,\sigma)$
-$\mu=inv.logit(\beta_1V+\beta_0)$
-$\beta_1$~$Normal(0,10)$
-$\beta_0$~$Exp(0.1)$
-$\sigma$~$Exp(0.01)$
+$$U\sim Beta(\mu,\sigma)$$
+$$\mu=inv.logit(\beta_1V+\beta_0)$$
+$$\beta_1\sim Normal(0,10)$$
+$$\beta_0\sim Exp(0.1)$$
+$$\sigma\sim Exp(0.01)$$
 
 ```{stan, output.var="MODEL1"}
 data {
@@ -313,7 +313,7 @@ This is higher than the square root mean squared error we had before, which was 
 
 ### Credible Intervals
 
-```{r}
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
 df<-data.frame(u=ur,v=v)
 
 
@@ -345,7 +345,9 @@ for (i in 1:nrow(df)) {
   
   ci_limits[i, ] <- obs_credible_interval
 }
+```
 
+```{r}
 merged_df = df %>% 
   bind_cols(data.frame(CI_L = ci_limits[,1], CI_R = ci_limits[,2])) %>% 
   mutate(Inside_CI = (u >= CI_L & u <= CI_R)) 
@@ -355,9 +357,6 @@ merged_df %>%
   geom_errorbar() +
   theme_minimal() +
   labs(x = "Point", y = "Unemployment Rate")
-
-
-
 ```
 
 95% credible intervals and predictions based on Model 1.
