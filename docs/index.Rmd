@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 # Modelling Unemployment and Vaccination Rates
 Damneet Thiara, 11170388 - STAT 447C
@@ -115,5 +115,221 @@ fit1_table<-data.frame("slope"=slope_data,
 fit1_table<-data.frame(t(fit1_table))
 colnames(fit1_table)<-colnames
 kable(fit1_table)
+```
+```{stan, echo=FALSE,output.var="MODEL1"}
+data {
+  int<lower=0> N; 
+  vector<lower=0,upper=1>[N] v;
+  vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
+}
 
+
+parameters {
+  real slope;
+  real<lower=0> intercept;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu=inv_logit(intercept + slope*v);
+}
+
+
+
+model {
+  slope ~ normal(0,10);
+  intercept ~ exponential(0.1);
+  sigma ~ exponential(0.01);
+  u~beta_proportion(mu, sigma);
+  
+}
+
+generated quantities {
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
+}
+
+```
+```{r, message=FALSE,echo=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+fit1 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+```
+```{r,echo=FALSE,out.width="50%"}
+mu_values<-extract(fit1)$mu
+averages <- colMeans(mu_values)
+
+plot(v,averages,col="red",type="b",
+      main="Bayesian Model 1",
+      ylab="Unemployment Rate",
+      xlab="Vaccine Rate")
+```
+
+The unemployment rates are clearly wrong, since the observed data for unemployment falls between 5% and 9%. The issue likely seems to be with the fact that unemployment rate does not vary much and remains at low levels, typically below 10%. Employing a beta prior on this raw data might not be appropriate, since the beta distribution ranges between 0 and 1. In order to combat, the unemployment rate is scaled upwards by a random constant. In this case, scaling upwards by 10 seems appropriate since none of the data for this model falls above 10%, so scaling by 10 will ensure that the data remains within the range of 0 to 1. After doing this, the following results are produced:
+```{r,echo=FALSE}
+ur=ur_data$UR/10
+```
+```{r,echo=FALSE, message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+mu_values<-extract(fit2)$mu/10
+averages <- colMeans(mu_values)
+
+```
+```{r,echo=FALSE}
+slope_data2<-c(-2.36,0.01,0.30,-2.99,-2.54,-2.35,-2.15,-1.79,743,1.00)
+intercept_data2<-c(2.21,0.01,0.23,1.78,2.05,2.21,2.36,2.70,737,1.00)
+sigma_data2<-c(45.59,0.38,11.47,25.87,37.59,44.66,52.40,70.90,893,1.01)
+fit2_table<-data.frame("slope"=slope_data2,
+                       "intercept"=intercept_data2,
+                       "sigma"=sigma_data2)
+
+fit2_table<-data.frame(t(fit2_table))
+colnames(fit2_table)<-colnames
+kable(fit2_table)
+```
+
+The key observations here are the intercept and the negative slope. The histograms for both are shown below.
+```{r,echo=FALSE}
+ur=ur_data$UR/10
+```
+```{r, echo=FALSE,message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+
+fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+```
+```{r,echo=FALSE,out.width="50%"}
+slopes<-extract(fit2)$slope/10
+intercepts<-extract(fit2)$intercept
+
+hist(slopes,main="Histogram of Slopes")
+
+inv_logit <- function(x) {
+  exp_x <- exp(-x)
+  return(1 / (1 + exp_x))
+}
+
+hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
+     xlab="Intercept")
+```
+
+To test different priors, I change the model priors to the following:
+$$\beta_1\sim Normal(0,1)$$
+$$\beta_0\sim Exp(0.01)$$
+$$\sigma\sim Exp(0.1)$$
+```{r,echo=FALSE}
+slope_data3<-c(-2.09,0.02,0.33,-2.74,-2.31,-2.08,-1.86,-1.45,460,1.00)
+intercept_data3<-c(2.02,0.01,0.25,1.54,1.84,2.01,2.19,2.51,473,1.00)
+sigma_data3<-c(34.09,0.31,9.29,18.06,27.55,33.06,40.02,54.46,881,1.00)
+fit3_table<-data.frame("slope"=slope_data3,
+                       "intercept"=intercept_data3,
+                       "sigma"=sigma_data3)
+
+fit3_table<-data.frame(t(fit3_table))
+colnames(fit3_table)<-colnames
+kable(fit3_table)
+```
+
+The posterior estimates are slightly different but around the same range. Notably, the effective sample size has decreased in this new model, so the first model will be kept, considering the posterior estimates are only slighlty different.
+
+## Results
+### Frequentist vs Bayesian Model
+
+The model data for both the Frequentist model and the chosen Bayesian model are plotted against the actual data below:
+
+```{r,echo=FALSE,out.width="40%"}
+dosage<-data.frame(v)
+
+predictions<-predict(ordinary_model,newdata=dosage)
+
+plot(v,ur/10,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1),type="b",col="black")
+lines(dosage$v,exp(predictions),type="b",col="red")
+lines(v,averages,type="b",col="blue")
+legend("bottomleft",
+       legend=c("Actual", "Frequentist", "Bayesian"),
+       col=c("black", "red", "blue"),
+       pch = 1,
+       bty="n",
+       cex=0.8)
+```
+
+Both look similar, but the root mean squared error can be computed to compare the fit of both:
+```{r,echo=FALSE}
+errors_regular<-exp(predictions)-ur/10
+RMSE1<-sqrt(mean(errors_regular^2))
+
+errors_bayes1<-averages-ur/10
+
+RMSE2<-sqrt(mean(errors_bayes1^2))
+
+errors_table<-data.frame("Frequentist"=RMSE1,"Bayesian"=RMSE2)
+kable(errors_table)
+```
+
+The RMSE for the Bayesian method is smaller, and thus fits better.
+
+Finally, credible intervals and generated quantity predictions can be used to if the Bayesian model can predict the next missing data point. For each interval, we leave the ith observation out:
+```{r,echo=FALSE,message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+df<-data.frame(u=ur,v=v)
+
+
+N_obs = nrow(df)
+N_train = N_obs-1
+
+ci_limits <- matrix(NA, nrow(df), 2)
+
+for (i in 1:nrow(df)) {
+  N_train <- nrow(df) - 1
+  train_test_dta <- list(
+    N = N_train,
+    v = df$v[-i], 
+    u = df$u[-i], 
+    v_pred = df$v[i]
+  )
+  
+  fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = train_test_dta,      
+  chains = 4,
+  iter = 1000
+)
+  
+  samples <- (rstan::extract(fit2)$u_pred)
+  
+  obs_credible_interval <- quantile(samples, c(0.025, 0.975))
+  
+  ci_limits[i, ] <- obs_credible_interval
+}
+```
+```{r,echo=FALSE,out.width="50%"}
+merged_df = df %>% 
+  bind_cols(data.frame(CI_L = ci_limits[,1], CI_R = ci_limits[,2])) %>% 
+  mutate(Inside_CI = (u >= CI_L & u <= CI_R)) 
+merged_df %>% 
+  ggplot(aes(x = 1:N_obs, y = u, ymin = CI_L, ymax = CI_R, color=Inside_CI)) +
+  geom_point() + 
+  geom_errorbar() +
+  theme_minimal() +
+  labs(x = "Point", y = "Unemployment Rate")
 ```
