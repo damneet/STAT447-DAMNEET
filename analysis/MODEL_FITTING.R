@@ -128,3 +128,10 @@ mcmc_rank_hist(fit, pars = c("intercept")) + theme_minimal()
 0.124^2
 
 sqrt(0.00004704276)
+
+inv_logit <- function(x) {
+  exp_x <- exp(-x)
+  return(1 / (1 + exp_x))
+}
+
+inv_logit(2.21)/10
