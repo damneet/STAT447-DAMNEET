@@ -45,26 +45,24 @@ N<-length(v)
 df<-data.frame(Unemployment=ur,Vaccination=v)
 ```
 ## Introduction
-By April of 2020, the overall unemployment rate in Canada had hit 14.1%, an 8.4 percentage point increase from February of 2020 (Source 1 - StatsCan). This unprecedented increase was just one month after COVID-19 was declared a pandemic by the World Health Organization (WHO). Since then, deaths have been unprecedented, alongside a dramatic downturn in economic activity. By December 9th, 2020, Health Canada had authorized the first COVID-19 vaccine: the Pfizer-BioNTech vaccine (Source 3). Health Canada also reported that the  Pfizer-BioNTech Comirnaty COVID vaccine had shown to have been “95% effective in protecting trial participants from COVID-19 for those 16 years and older” (Source 4). 
+By April 2020, the overall unemployment rate in Canada had hit 14.1%, an 8.4 percentage point increase from February 2020 (Statistics Canada, 2024). This unprecedented increase was just one month after COVID-19 was declared a pandemic by the World Health Organization (WHO) (Centers for Disease Control and Prevention, 2023). Since then, deaths have been unprecedented, alongside a dramatic downturn in economic activity. By December 9th, 2020, Health Canada had authorized the first COVID-19 vaccine: the Pfizer-BioNTech vaccine (Health Canada, 2020). Health Canada also reported that the  Pfizer-BioNTech Comirnaty COVID-19 vaccine had shown to have been “95% effective in protecting trial participants from COVID-19 for those 16 years and older” (Health Canada, 2024). 
 
-With consumer demand and economic activity spiralling downwards amidst a succession of COVID-19 lockdowns and increasing case/death counts, it begs the question on how COVID-19 vaccines have affected these economic characteristics. Specifically, this paper aims to analyze the relationship between vaccination rates and unemployment rates in Canada from 2020 to 2023. We test the difference between a logarithmic Frequentist model versus a Bayesian model to predict Canadian unemployment rates based on vaccination rates, using time series data.
+With consumer demand and economic activity spiralling downwards amidst a succession of COVID-19 lockdowns and increasing case/death counts, it begs the question of how COVID-19 vaccines have affected these economic characteristics. Specifically, this paper aims to analyze the relationship between vaccination rates and unemployment rates in Canada from 2020 to 2023. We test the difference between a logarithmic Frequentist model versus a Bayesian model to predict Canadian unemployment rates based on vaccination rates, using time series data.
 
 ## Literature Review
-Previous studies on employing a Bayesian model to unemployment rates have been conducted by Source 5. By building a hierarchical Bayesian model, Source 5 uses cross-sectional and time series data to estimate US state unemployment rates. Additionally, Source 7 uses a Bayesian analysis to estimate the effects of COVID-19 on key economic indicators, and finds that unemployment increased, interest rates decreased, and prices fell after the first lockdown measures. These effects were then dampened or counteracted by stimulus packages. The increase in unemployment rates here ties in directly with the purpose of this project.
+Previous studies on employing a Bayesian model to unemployment rates have been conducted by Datta et al (1999). By building a hierarchical Bayesian model, they use cross-sectional and time series data to estimate US state unemployment rates (p.1080). Additionally, Younes & Altug, (2021) use a Bayesian analysis to estimate the effects of COVID-19 on key economic indicators and find that unemployment increased, interest rates decreased, and prices fell after the first lockdown measures. These effects were then dampened or counteracted by stimulus packages. The increase in unemployment rates here ties in directly with the purpose of this project.
 
-Source 8 conducts a Bayesian analysis on how vaccine misinformation affects vaccination rates, reporting that misinformation can decline intent to vaccinate by up to 6.4 percentage points. 
+Loomba et al. conduct a Bayesian analysis on how vaccine misinformation affects vaccination rates, reporting that misinformation can decline intent to vaccinate by up to 6.4 percentage points (2021).
 
-Finally, researchers have explored the relationship between vaccination rates and unemployment rates in many ways already. Source 9 uses an OLS model to find the relationship between vaccination rates and unemployment rates in the US. When analyzing domestic unemployment rates, they find a negative relationship between the two; an increase in vaccination rates is seen alongside a decrease in unemployment rates. However, when analyzing through a state-by-state view, they find that states with higher vaccination rates are more likely to have higher unemployment rates. Although this may seem counter-intuitive, the authors explain this by showing how states with higher vaccination rates experience a higher change in unemployment rates, indeed highlighting the benefits that higher vaccination rates have when it comes to unemplpyment. Indeed, source 3 also finds the same correlation between states with high unemployment rates and high vaccination rates. Similarly, Source 2 finds that there is also a negative relationship between veccination and unemployment rates, specifically using instrumental variable analysis to isolate the effects of vaccines by using pharamacy desnity as a proxy.
+Finally, researchers have explored the relationship between vaccination rates and unemployment rates in many ways already. Hu et al. use an OLS model to find the relationship between vaccination rates and unemployment rates in the US. When analyzing domestic unemployment rates, they find a negative relationship between the two; an increase in vaccination rates is seen alongside a decrease in unemployment rates. However, when analyzing through a state-by-state view, they find that states with higher vaccination rates are more likely to have higher unemployment rates. Although this may seem counter-intuitive, the authors explain this by showing how states with higher vaccination rates experience a higher change in unemployment rates, indeed highlighting the benefits that higher vaccination rates have when it comes to unemployment (2022, p.196-198). Indeed, Roghani & Panahi (2021, p. 10) also find the same correlation between states with high unemployment rates and high vaccination rates. Similarly, Hansen & Mano (2023, p. 148) find that there is also a negative relationship between vaccination and unemployment rates, specifically using instrumental variable analysis to isolate the effects of vaccines by using pharmacy density as a proxy.
 
-The causal relationship can also be reversed. It is shown that a 5 percentage point increase in unemployment rate, a characteristic increase during a recessionary period, decreases the likelihood of a flu shot by 2.3 percentage points (Source 4). 
-
-Notably, there is little to no literature on comparing a Frequentist and Bayesian methods to estimate the relationship between vaccination rates and unemployment rates. 
+Notably, there is little to no literature on comparing Frequentist and Bayesian methods to estimate the relationship between vaccination rates and unemployment rates. 
 
 ## Analysis
 ### Data
 Based on the literature review, although higher vaccination rates are associated with greater drops in unemployment, this does not necessarily mean that states or provinces with higher vaccination rates will have lower unemployment rates. Since the purpose of this project is to test the differences between a Frequentist and Bayesian model, for simplicity, national time series data for Canadian unemployment rates and vaccination rates is used, rather than dividing it between multiple provinces. 
 
-The data for vaccination rates was retrieved from the Government of Canada Health Information Base (Source 6). Previous literature uses one dosage of a COVID-19 vaccine as the benchmark for vaccination rates, so the same standard is used here. Canadian unemployment rates were retrieved from Statistics Canada databases (Source 7). Unemployment rates are reported for an entire month, so the corresponding vaccination rate for each month is the last available vaccination rate available for the end of each month. Some months in 2023 are omitted due to limited vaccination rate data during this time. The final data looks like:
+The data for vaccination rates was retrieved from the Government of Canada Health Information Base (Public Health Agency of Canada, 2024). Previous literature uses one dosage of a COVID-19 vaccine as the benchmark for vaccination rates, so the same standard is used here. Canadian unemployment rates were retrieved from Statistics Canada databases (Statistics Canada, 2024). Unemployment rates are reported for an entire month, so the corresponding vaccination rate for each month is the last available vaccination rate available for the end of each month. Some months in 2023 are omitted due to limited vaccination rate data during this time. The final data looks like:
 
 ```{r,echo=FALSE,out.width="50%"}
 plot(v,ur,
@@ -169,7 +167,7 @@ plot(v,averages,col="red",type="b",
       xlab="Vaccine Rate")
 ```
 
-The unemployment rates are clearly wrong, since the observed data for unemployment falls between 5% and 9%. The issue likely seems to be with the fact that unemployment rate does not vary much and remains at low levels, typically below 10%. Employing a beta prior on this raw data might not be appropriate, since the beta distribution ranges between 0 and 1. In order to combat, the unemployment rate is scaled upwards by a random constant. In this case, scaling upwards by 10 seems appropriate since none of the data for this model falls above 10%, so scaling by 10 will ensure that the data remains within the range of 0 to 1. After doing this, the following results are produced:
+The unemployment rates are clearly inflated since the observed data for unemployment falls between 5% and 9%. The issue likely seems to be with the fact that the unemployment rate does not vary much and remains at low levels, typically below 10%. Employing a beta prior to this raw data might not be appropriate, since the beta distribution ranges between 0 and 1. To combat this, the unemployment rate is scaled upwards by a random constant. In this case, scaling upwards by 10 seems appropriate since none of the data for this model falls above 10%, so scaling by 10 will ensure that the data remains within the range of 0 to 1. After doing this, the following results are produced:
 ```{r,echo=FALSE}
 ur=ur_data$UR/10
 ```
@@ -246,10 +244,10 @@ colnames(fit3_table)<-colnames
 kable(fit3_table)
 ```
 
-The posterior estimates are slightly different but around the same range. Notably, the effective sample size has decreased in this new model, so the first model will be kept, considering the posterior estimates are only slighlty different.
+The posterior estimates are slightly different but around the same range. Notably, the effective sample sizes have decreased in this new model, so the first model will be kept, considering the posterior estimates are only slightly different.
 
-## Results
-### Frequentist vs Bayesian Model
+## Conclusion
+### Results
 
 The estimates for the parameters for each respective model are listed below:
 ```{r,echo=FALSE}
@@ -267,7 +265,7 @@ kable(results)
 
 Notably, the slopes are different, but both have different interpretations, so instead, the model data can be plotted to see how close it is to the observed. The model data for both the Frequentist model and the chosen Bayesian model are plotted against the actual data below:
 
-```{r,echo=FALSE,out.width="40%"}
+```{r,echo=FALSE,out.width="50%"}
 dosage<-data.frame(v)
 
 predictions<-predict(ordinary_model,newdata=dosage)
@@ -300,9 +298,9 @@ errors_table<-data.frame("Frequentist"=RMSE1,"Bayesian"=RMSE2)
 kable(errors_table)
 ```
 
-The RMSE for the Bayesian method is smaller, and thus fits better.
+The RMSE for the Bayesian method is smaller, and thus fits better. It can safely be concluded that higher vaccination rates lead to lower unemployment rates, with an intercept of about 9% at 0% vaccination.
 
-Finally, credible intervals and generated quantity predictions can be used to if the Bayesian model can predict the next missing data point. For each interval, we leave the ith observation out:
+Finally, credible intervals and generated quantity predictions can be used to if the Bayesian model can predict the next missing data point. For each interval, we leave the i-th observation out:
 ```{r,echo=FALSE,message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
 df<-data.frame(u=ur,v=v)
 
@@ -353,8 +351,392 @@ merged_df %>%
 
 #### Frequentist
 
-The first limitation in this model is that the predicted unemployment rate could theoretically go above 1, which is not possible in the unemployment model. Data is also limited due to the short period in which unemployment was incredibly high and vaccination rates were increasing, so the errors are likely higher than they could be if there was more data available. The usage of the Bayesian model aims to fix the first problem here.
+The first limitation of this model is that the predicted unemployment rate could theoretically go above 1, which is not possible in the unemployment model. Data is also limited due to the short period in which unemployment was incredibly high and the vaccination rate was increasing, so the errors are likely higher than they could be if there was more data available. The usage of the Bayesian model aims to fix the first problem here.
 
 #### Bayesian
 
-Although the Bayesian model ensures that results will not fall out of the appropriate range, given the range on the distributions, there are still limitations to this model. First, the data had to be scaled in order to be used with the Beta distribution, as was discussed earlier. Although this solved the issue in this particular case, if unemployment rates were to go above 10%, then scaling by 10 would cause the data to go outside the range of the Beta distribution. Thus, a different scalar constant would need to be chosen. This leads to an issue of the scalar being rather arbitrary. This issue does not arise in the Frequentist model.
+Although the Bayesian model ensures that results will not fall out of the appropriate range, given the range of the distributions, there are still limitations to this model. First, the data had to be scaled to be used with the Beta distribution, as was discussed earlier. Although this solved the issue in this particular case, if unemployment rates were to go above 10%, then scaling by 10 would cause the data to go outside the range of the Beta distribution. Thus, a different scalar constant would need to be chosen. This leads to an issue of the scalar being rather arbitrary. This issue does not arise in the Frequentist model.
+\newpage
+
+## References
+
+Centers for Disease Control and Prevention. (2023, March 15). CDC Museum COVID-19 timeline. https://www.cdc.gov/museum/timeline/covid19.html
+
+Datta, G. S., Lahiri, P., Maiti, T., & Lu, K. L. (1999). Hierarchical Bayes estimation of unemployment rates for the states of the U.S. Journal of the American Statistical Association, 94(448), 1074. https://doi.org/10.2307/2669921
+
+Hansen, N., & Mano, R. C. (2023). COVID-19 vaccines: A shot in arm for the economy. IMF Economic Review, 148-169. https://doi.org/10.2139/ssrn.4026511
+
+Health Canada. (2020, December 9). Health Canada authorizes first COVID-19 vaccine. https://www.canada.ca/en/health-canada/news/2020/12/health-canada-authorizes-first-covid-19-vaccine0.html
+
+Health Canada. (2024, March 28). Pfizer-biontech Comirnaty COVID-19 vaccine. https://www.canada.ca/en/health-canada/services/drugs-health-products/covid19-industry/drugs-vaccines-treatments/vaccines/pfizer-biontech.html
+
+Hu, F., Pang, J., & Sun, H. (2022). Research on the relationship between unemployment rate and vaccination rate in United States. Journal of Economics, Business and Management, 10(3), 195-199. https://doi.org/10.18178/joebm.2022.10.3.698
+
+Loomba, S., De Figueiredo, A., Piatek, S. J., De Graaf, K., & Larson, H. J. (2021). Measuring the impact of COVID-19 vaccine misinformation on vaccination intent in the UK and USA. Nature Human Behaviour, 5(3), 337-348. https://doi.org/10.1038/s41562-021-01056-1
+
+Public Health Agency of Canada. (2024, September 15). COVID-19 vaccination coverage in Canada. https://health-infobase.canada.ca/covid-19/vaccination-coverage/
+
+Roghani, A., & Panahi, S. (2021). Higher COVID-19 vaccination rates among unemployed in the United States: State level study in the first 100 days of vaccine initiation. Division of Epidemiology - University of Utah. https://doi.org/10.1101/2021.04.17.21255668
+
+Statistics Canada. (2024, April 5). Labour force characteristics by province, monthly, seasonally adjusted. https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028703&pickMembers%5B0%5D=3.1&pickMembers%5B1%5D=4.1&cubeTimeFrame.startMonth=04&cubeT
+
+Younes, O. A., & Altug, S. (2021). The COVID-19 shock: A Bayesian approach. Journal of Risk and Financial Management, 14(10), 495. https://doi.org/10.3390/jrfm14100495
+\newpage
+
+## Appendix
+
+### Cleaning Data
+
+```{r}
+## Reading CSV files
+vaccines<-read.csv("~/Desktop/vaccination-coverage-map_data.csv")
+ur_data<-read.csv("~/Desktop/STAT 447C/PROJECT DATA/UR_DATA.csv")
+
+## Isolating proportion at least 1 dose
+
+Canadian_vaccines<-subset(vaccines, prename == "Canada")
+Canadian_vaccines<-data.frame(
+  date=Canadian_vaccines$week_end,
+  dose_rate=Canadian_vaccines$proptotal_atleast1dose)
+
+## Removing extra data
+
+ur_data<-ur_data[-c(40,41),]
+ur_data<-ur_data[-c(30:39),]
+
+Canadian_vaccines<-Canadian_vaccines[-c(1,3:6,8:10,12:14,16:18,20:23,
+                                        25:27,29:32,34:36,38:40,42:45,
+                                        47:49,51:53,55:58,60:62,64:66,68:69,
+                                        71,80,85:88),]
+
+## Normalizing data
+
+ur<-ur_data$UR/100
+v<-Canadian_vaccines$dose_rate/100
+N<-length(v)
+df<-data.frame(Unemployment=ur,Vaccination=v)
+```
+
+
+### Table of Data
+
+```{r}
+
+rmarkdown::paged_table(df)
+
+```
+
+```{r}
+## Plot for first look at relationship between two variable
+
+plot(v,ur,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1))
+
+```
+
+Plot 1
+
+### Fitting Frequentist Model
+
+```{r}
+## Logarithmimc model
+
+ordinary_model<-lm(log(ur)~v)
+summary(ordinary_model)
+```
+
+Summary statistics for frequentist model.
+
+```{r}
+## Measuring accuracy
+
+dosage<-data.frame(v)
+
+predictions<-predict(ordinary_model,newdata=dosage)
+
+plot(v,ur,
+     main="Vaccination and Unemployment Rates in Canada, 2020 to 2023",
+     ylab="Unemployment Rate",
+     xlab="Vaccination Rate",
+     ylim=c(0.045,0.1))
+lines(dosage$v,exp(predictions),type="p",col="red")
+legend("bottomleft", legend = c("Actual", "Fitted"), 
+       col = c("black", "red"), pch = c(1, 1))
+
+errors_regular<-exp(predictions)-ur
+sqrt(mean(errors_regular^2))
+```
+Plot 2.
+Square root of the mean squared error of residuals for this model is 0.007736867.
+
+### Bayesian Model
+
+#### Model 1
+
+I use the following priors:
+$$U\sim Beta(\mu,\sigma)$$
+$$\mu=inv.logit(\beta_1V+\beta_0)$$
+$$\beta_1\sim Normal(0,10)$$
+$$\beta_0\sim Exp(0.1)$$
+$$\sigma\sim Exp(0.01)$$
+
+```{stan, output.var="MODEL1"}
+data {
+  int<lower=0> N; 
+  vector<lower=0,upper=1>[N] v;
+  vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
+}
+
+
+parameters {
+  real slope;
+  real<lower=0> intercept;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu=inv_logit(intercept + slope*v);
+}
+
+
+
+model {
+  slope ~ normal(0,10);
+  intercept ~ exponential(0.1);
+  sigma ~ exponential(0.01);
+  u~beta_proportion(mu, sigma);
+  
+}
+
+generated quantities {
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
+}
+
+```
+
+#### Fitting Model
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+fit1 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+```
+
+```{r}
+print(fit1)
+```
+
+```{r}
+## Plot model
+
+mu_values<-extract(fit1)$mu
+averages <- colMeans(mu_values)
+
+plot(v,averages,col="red",type="b",
+      main="Bayesian Model 1",
+      ylab="Unemployment Rate",
+      xlab="Vaccine Rate")
+
+```
+
+Plot 3.
+
+#### Scaling Unemployment by 10
+
+```{r}
+ur=ur_data$UR/10
+```
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+
+fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+```
+
+```{r}
+print(fit2)
+```
+
+```{r}
+
+## Plotting model
+mu_values<-extract(fit2)$mu/10
+averages <- colMeans(mu_values)
+
+plot(v,averages,type="b",col="red",
+     main="Bayesian Model 2 - Actual vs Predicted",
+     ylim=c(0.045,0.095),
+     xlab="Vaccine Rate",
+     ylab="Unemployment Rate")
+lines(v,ur/10,type="b")
+legend("bottomleft", legend = c("Actual", "Predicted"), col = c("black", "red"), pch = c(1, 1), bty="n")
+
+## Plotting slope and intercept histograms
+
+slopes<-extract(fit2)$slope/10
+intercepts<-extract(fit2)$intercept
+
+hist(slopes,main="Histogram of Slopes")
+
+inv_logit <- function(x) {
+  exp_x <- exp(-x)
+  return(1 / (1 + exp_x))
+}
+
+hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
+     xlab="Intercept")
+```
+
+Plot 4, 5, and 6.
+
+#### Errors
+
+```{r}
+errors_bayes1 <- data.frame(matrix(ncol = 29, nrow = 2000))
+  
+errors_bayes1<-averages-ur/10
+
+sqrt(mean(errors_bayes1^2))
+
+```
+
+Square root of the mean squared error for this model is 0.006672511.
+
+#### Model 2: Changing Priors
+
+I use the following priors now:
+
+$$U\sim Beta(\mu,\sigma)$$
+$$\mu=inv.logit(\beta_1V+\beta_0)$$
+$$\beta_1\sim Normal(0,1)$$
+$$\beta_0\sim Exp(0.01)$$
+$$\sigma\sim Exp(0.1)$$
+
+```{stan, output.var="MODEL2"}
+data {
+  int<lower=0> N; 
+  vector<lower=0,upper=1>[N] v;
+  vector<lower=0, upper=1>[N] u; 
+  real<lower=0,upper=1> v_pred;
+}
+
+
+parameters {
+  real slope;
+  real<lower=0> intercept;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu=inv_logit(intercept + slope*v);
+}
+
+
+
+model {
+  slope ~ normal(0,1);
+  intercept ~ exponential(0.01);
+  sigma ~ exponential(0.1);
+  u~beta_proportion(mu, sigma);
+  
+}
+
+generated quantities {
+  real u_pred = beta_proportion_rng(inv_logit(intercept + slope*v_pred),sigma);
+}
+```
+
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+
+fit3 = sampling(
+  seed=123,
+  MODEL2,         
+  data = list(u=ur,v=v,N=N,v_pred=1),      
+  chains = 4,
+  iter = 1000
+)
+
+```
+
+```{r}
+print(fit3)
+```
+
+### Errors
+
+```{r}
+mu_values<-extract(fit3)$mu/10
+averages <- colMeans(mu_values)
+
+errors_bayes2<-averages-ur/10
+
+sqrt(mean(errors_bayes2^2))
+
+```
+
+This is higher than the square root mean squared error we had before, which was 0.006672511.
+
+#### Credible Intervals
+
+```{r message=FALSE, warning=FALSE, results=FALSE, dependson=knitr::dep_prev()}
+df<-data.frame(u=ur,v=v)
+
+
+N_obs = nrow(df)
+N_train = N_obs-1
+
+ci_limits <- matrix(NA, nrow(df), 2)
+
+for (i in 1:nrow(df)) {
+  N_train <- nrow(df) - 1
+  train_test_dta <- list(
+    N = N_train,
+    v = df$v[-i], 
+    u = df$u[-i], 
+    v_pred = df$v[i]
+  )
+  
+  fit2 = sampling(
+  seed=123,
+  MODEL1,         
+  data = train_test_dta,      
+  chains = 4,
+  iter = 1000
+)
+  
+  samples <- (rstan::extract(fit2)$u_pred)
+  
+  obs_credible_interval <- quantile(samples, c(0.025, 0.975))
+  
+  ci_limits[i, ] <- obs_credible_interval
+}
+```
+
+```{r}
+merged_df = df %>% 
+  bind_cols(data.frame(CI_L = ci_limits[,1], CI_R = ci_limits[,2])) %>% 
+  mutate(Inside_CI = (u >= CI_L & u <= CI_R)) 
+merged_df %>% 
+  ggplot(aes(x = 1:N_obs, y = u, ymin = CI_L, ymax = CI_R, color=Inside_CI)) +
+  geom_point() + 
+  geom_errorbar() +
+  theme_minimal() +
+  labs(x = "Point", y = "Unemployment Rate")
+```
+
+Plot 7. 95% credible intervals and predictions based on Model 1.
