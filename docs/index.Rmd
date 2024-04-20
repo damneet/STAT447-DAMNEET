@@ -345,7 +345,7 @@ merged_df %>%
   geom_point() + 
   geom_errorbar() +
   theme_minimal() +
-  ggtitle("Points Within Credible Intervals")
+  ggtitle("Points Within Credible Intervals")+
   labs(x = "Point", y = "Unemployment Rate")
 ```
 
