@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Modelling Unemployment and Vaccination Rates
 Damneet Thiara, 11170388 - STAT 447C
@@ -225,7 +225,7 @@ inv_logit <- function(x) {
   return(1 / (1 + exp_x))
 }
 
-hist(inv_logit(intercepts)/10,main="Histogram of Intercepts - Model 2",
+hist(inv_logit(intercepts)/10,main="Histogram of Intercepts",
      xlab="Intercept")
 ```
 
@@ -251,7 +251,21 @@ The posterior estimates are slightly different but around the same range. Notabl
 ## Results
 ### Frequentist vs Bayesian Model
 
-The model data for both the Frequentist model and the chosen Bayesian model are plotted against the actual data below:
+The estimates for the parameters for each respective model are listed below:
+```{r,echo=FALSE}
+slopes<-c(-0.61204,-2.36/10)
+intercepts<-c(0.09366,0.09011439)
+
+results<-t(data.frame(slopes,intercepts))
+
+colnames<-c("Frequentist","Bayesian")
+
+colnames(results)<-colnames
+kable(results)
+
+```
+
+Notably, the slopes are different, but both have different interpretations, so instead, the model data can be plotted to see how close it is to the observed. The model data for both the Frequentist model and the chosen Bayesian model are plotted against the actual data below:
 
 ```{r,echo=FALSE,out.width="40%"}
 dosage<-data.frame(v)
@@ -331,5 +345,16 @@ merged_df %>%
   geom_point() + 
   geom_errorbar() +
   theme_minimal() +
+  ggtitle("Points Within Credible Intervals")
   labs(x = "Point", y = "Unemployment Rate")
 ```
+
+### Limitations
+
+#### Frequentist
+
+The first limitation in this model is that the predicted unemployment rate could theoretically go above 1, which is not possible in the unemployment model. Data is also limited due to the short period in which unemployment was incredibly high and vaccination rates were increasing, so the errors are likely higher than they could be if there was more data available. The usage of the Bayesian model aims to fix the first problem here.
+
+#### Bayesian
+
+Although the Bayesian model ensures that results will not fall out of the appropriate range, given the range on the distributions, there are still limitations to this model. First, the data had to be scaled in order to be used with the Beta distribution, as was discussed earlier. Although this solved the issue in this particular case, if unemployment rates were to go above 10%, then scaling by 10 would cause the data to go outside the range of the Beta distribution. Thus, a different scalar constant would need to be chosen. This leads to an issue of the scalar being rather arbitrary. This issue does not arise in the Frequentist model.
