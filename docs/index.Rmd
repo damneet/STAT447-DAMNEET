@@ -4,7 +4,7 @@ output:
   pdf_document: default
 ---
 # Modelling Unemployment and Vaccination Rates
-Damneet Thiara, 11170388 - STAT 447C
+Damneet Thiara - STAT 447C
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
